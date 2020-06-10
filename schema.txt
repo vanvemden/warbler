@@ -1,0 +1,11 @@
+Users           Likes (MtoM)    Messages        Followers                   
+A:id            id              B:id            A:user_being_followed_id
+email           A:user_id       text            A:user_following_id         
+username        B:message_id    timestamp                                 
+image_url                       A:user_id
+header_image_url
+bio
+location
+password
+
+

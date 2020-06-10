@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm
+from forms import UserAddForm, UserEditForm, LoginForm, MessageForm
 from models import db, connect_db, User, Message
 
 CURR_USER_KEY = "curr_user"
@@ -20,6 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
@@ -112,8 +113,11 @@ def login():
 @app.route('/logout')
 def logout():
     """Handle logout of user."""
+    if CURR_USER_KEY in session:
+        do_logout()
+        flash("You have been logged out successfully!", "success")
 
-    # IMPLEMENT THIS
+    return redirect('/login')
 
 
 ##############################################################################
@@ -209,9 +213,35 @@ def stop_following(follow_id):
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
-    """Update profile for current user."""
+    """Update profile for current user.
+       Check if the correct password has been entered.
+       TODO: Check if username and email are unique.
+    """
 
-    # IMPLEMENT THIS
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = UserEditForm(obj=g.user)
+
+    if form.validate_on_submit():
+        password = form.password.data
+
+        if User.authenticate(password=password, username=g.user.username):
+            g.user.username = form.username.data
+            g.user.email = form.email.data
+            g.user.image_url = form.image_url.data
+            g.user.header_image_url = form.header_image_url.data
+            g.user.bio = form.bio.data
+
+            db.session.commit()
+            flash("Your profile has been updated successfully.", "success")
+            return redirect(f"/users/{ g.user.id }")
+        else:
+            flash("Please enter the correct password to update your profile.", "danger")
+            return render_template("users/edit.html", form=form)
+    else:
+        return render_template("users/edit.html", form=form)
 
 
 @app.route('/users/delete', methods=["POST"])
