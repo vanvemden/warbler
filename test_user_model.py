@@ -53,9 +53,9 @@ class UserModelTestCase(TestCase):
 
         self.client = app.test_client()
 
-        user1 = User(**USER_DATA_1)
+        user1 = User.signup(**USER_DATA_1, image_url="")
         db.session.add(user1)
-        user2 = User(**USER_DATA_2)
+        user2 = User.signup(**USER_DATA_2, image_url="")
         db.session.add(user2)
         db.session.commit()
 
@@ -124,11 +124,26 @@ class UserModelTestCase(TestCase):
     def test_signup_fail(self):
         """Test if user signup fails with invalid credentials."""
 
-        # with self.assertRaises(
-        #     (InvalidRequestError, IntegrityError, UniqueViolation)):
-        #     user = User.signup(**USER_DATA_1, image_url="")
-        #     db.session.commit()
-
+        with self.assertRaises(IntegrityError) as cm:
+            user = User.signup(**USER_DATA_1, image_url="")
+            db.session.commit()
+        db.session.rollback()
         count = User.query.filter(
-            User.username == USER_DATA_1["username"]).count()
+                User.username == USER_DATA_1["username"]).count()
         self.assertEqual(count, 1)
+
+    def test_return_user(self):
+        """Testing if user authenticate returns correct user"""
+        user = User.query.first()
+        user_test = User.authenticate('testuser1', 'HASHED_PASSWORD')
+        self.assertEqual(user, user_test)
+
+    def test_authentification_fail(self):
+        user = User.query.first()
+        user_test = User.authenticate('testuser2', 'HASHED_PASSWORD')
+        self.assertNotEqual(user, user_test)
+
+    def test_password_fail(self):
+        user = User.query.first()
+        user_test = User.authenticate('testuser1', 'HASHED_ORD')
+        self.assertNotEqual(user, user_test)
