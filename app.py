@@ -124,6 +124,7 @@ def logout():
 ##############################################################################
 # General user routes:
 
+
 @app.route('/users')
 def list_users():
     """Page with listing of users.
@@ -265,6 +266,7 @@ def delete_user():
 ##############################################################################
 # Messages routes:
 
+
 @app.route('/messages/new', methods=["GET", "POST"])
 def messages_add():
     """Add a message:
@@ -295,20 +297,25 @@ def messages_show(message_id):
     msg = Message.query.get(message_id)
     return render_template('messages/show.html', message=msg)
 
+
 @app.route('/messages/<int:message_id>/like', methods=["GET", "POST"])
 def add_like(message_id):
+    """ Like a message."""
+
     message = Message.query.get(message_id)
 
     if message.user_id == g.user.id:
-        return message.text
+        return redirect(request.referrer)
     
     if message in g.user.likes:
         g.user.likes = [like for like in g.user.likes if not like.id == message_id]
     else:
         g.user.likes.append(message)
-    print('....', g.user.likes, '...')
+    
     db.session.commit()
-    return redirect(f'/messages/{message_id}') # return redirect('/')??
+
+    return redirect(request.referrer)
+
 
 @app.route('/users/<int:id>/likes')
 def show_favorites(id):
@@ -345,12 +352,11 @@ def homepage():
     """
     
     if g.user:
-        following_ids = [f.id for f in g.user.following]
-        following_ids.append(g.user.id)
-        following_ids_set = set(following_ids)
+        following_ids = {f.id for f in g.user.following}
+        following_ids.add(g.user.id)
         messages = (Message
                     .query
-                    .filter(Message.user_id.in_(following_ids_set))
+                    .filter(Message.user_id.in_(following_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
