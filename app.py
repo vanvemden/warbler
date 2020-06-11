@@ -5,7 +5,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, UserEditForm, LoginForm, MessageForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Likes
 
 CURR_USER_KEY = "curr_user"
 
@@ -67,6 +67,7 @@ def signup():
     """
 
     form = UserAddForm()
+    
 
     if form.validate_on_submit():
         try:
@@ -145,6 +146,7 @@ def users_show(user_id):
     """Show user profile."""
 
     user = User.query.get_or_404(user_id)
+
 
     # snagging messages in order from the database;
     # user.messages won't be in order by default
@@ -293,6 +295,27 @@ def messages_show(message_id):
     msg = Message.query.get(message_id)
     return render_template('messages/show.html', message=msg)
 
+@app.route('/messages/<int:message_id>/like', methods=["GET", "POST"])
+def add_like(message_id):
+    message = Message.query.get(message_id)
+
+    if message.user_id == g.user.id:
+        return message.text
+    
+    if message in g.user.likes:
+        g.user.likes = [like for like in g.user.likes if not like.id == message_id]
+    else:
+        g.user.likes.append(message)
+    print('....', g.user.likes, '...')
+    db.session.commit()
+    return redirect(f'/messages/{message_id}') # return redirect('/')??
+
+@app.route('/users/<int:id>/likes')
+def show_favorites(id):
+    user = User.query.get_or_404(id)
+    likes = user.likes
+    return render_template('likes.html', likes=likes, user=user)
+
 
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
 def messages_destroy(message_id):
@@ -320,14 +343,14 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-
+    
     if g.user:
-        following = User.query.get(g.user.id).following
-        user_id_list = [follow.id for follow in following]
-        user_id_list.append(g.user.id)
+        following_ids = [f.id for f in g.user.following]
+        following_ids.append(g.user.id)
+        following_ids_set = set(following_ids)
         messages = (Message
                     .query
-                    .filter(Message.user_id.in_(user_id_list))
+                    .filter(Message.user_id.in_(following_ids_set))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())

@@ -47,6 +47,8 @@ class Likes(db.Model):
         db.ForeignKey('messages.id', ondelete='cascade')
     )
 
+    message = db.relationship('Message')
+
 
 
 class User(db.Model):
@@ -198,6 +200,7 @@ class Message(db.Model):
     )
 
     user = db.relationship('User')
+    likes = db.relationship('Likes')
 
 
 def connect_db(app):

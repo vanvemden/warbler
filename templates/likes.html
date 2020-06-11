@@ -1,0 +1,18 @@
+{% include 'users/show.html' %}
+
+
+
+{% block content %}
+<div class="container">
+    <h2>Favorites!</h2>
+    <div class="row">
+    
+    <ol>
+        {% for like in likes %}
+            <li>{{ like.text }}</li>
+        {% endfor %}
+    </ol>
+    </div>
+</div>
+
+{% endblock %}
