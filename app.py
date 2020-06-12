@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, UserEditForm, LoginForm, MessageForm
+from forms import UserAddForm, UserEditForm, LoginForm, MessageForm, UserPasswordForm
 from models import db, connect_db, User, Message, Likes
 
 CURR_USER_KEY = "curr_user"
@@ -40,7 +40,7 @@ def add_user_to_g():
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
-
+        g.message_form = MessageForm()
     else:
         g.user = None
 
@@ -211,6 +211,36 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
+@app.route('/users/profile/password', methods=["GET", "POST"])
+def change_password():
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = UserPasswordForm()
+
+
+    if form.validate_on_submit():
+        password = form.password.data
+        
+        if User.authenticate(password=password, username=g.user.username):
+
+            if form.new_password.data == form.confirm_password.data:
+                g.user.password = User.change_password(password=form.new_password.data)
+
+                db.session.commit()
+                flash("Your password has been updated successfully.", "success")
+                return redirect(request.referrer)
+            else:
+                flash('Sorry, but your two new inputs did not match!')
+                return render_template("users/password.html", form=form)
+        else:
+            flash("Please enter the correct password to update your profile.",
+                  "danger")
+            return render_template("users/password.html", form=form)
+    else:
+        return render_template("users/password.html", form=form)
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
@@ -287,14 +317,13 @@ def messages_add():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    form = MessageForm()
+    text = request.json['text']
 
-    if form.validate_on_submit():
-        msg = Message(text=form.text.data)
-        g.user.messages.append(msg)
+    if text:
+        msg = Message(text=text, user_id=g.user.id)
+        db.session.add(msg)
         db.session.commit()
-
-        return redirect(f"/users/{g.user.id}")
+        return ({"message": serialize_message(msg, False)}, 201)
 
     return render_template('messages/new.html', form=form)
 

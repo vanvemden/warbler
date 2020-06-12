@@ -30,7 +30,7 @@ class Follows(db.Model):
 class Likes(db.Model):
     """Mapping user likes to warbles."""
 
-    __tablename__ = 'likes' 
+    __tablename__ = 'likes'
 
     id = db.Column(
         db.Integer,
@@ -170,6 +170,11 @@ class User(db.Model):
                 return user
 
         return False
+
+    @classmethod
+    def change_password(cls, password):
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+        return hashed_pwd
 
 
 class Message(db.Model):
