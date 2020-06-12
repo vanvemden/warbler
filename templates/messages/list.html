@@ -16,7 +16,7 @@
           </div>
           {% if g.user.id != message.user_id %}
           <form method="POST" action="/messages/{{ message.id }}/like" class="messages-like">
-            <button class="
+            <button  id="{{ message.id }}" class="
               btn
               btn-sm
               {{'btn-primary' if message in g.user.likes else 'btn-secondary'}}"

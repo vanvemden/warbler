@@ -266,6 +266,16 @@ def delete_user():
 # Messages routes:
 
 
+def serialize_message(message, like):
+    return {
+        'id': message.id,
+        'text': message.text,
+        'timestamp': message.timestamp,
+        'user_id': message.user_id,
+        'like': like,
+    }
+
+
 @app.route('/messages/new', methods=["GET", "POST"])
 def messages_add():
     """Add a message:
@@ -299,23 +309,23 @@ def messages_show(message_id):
 
 @app.route('/messages/<int:message_id>/like', methods=["GET", "POST"])
 def add_like(message_id):
-    """ Like a message."""
 
     message = Message.query.get(message_id)
-
     if message.user_id == g.user.id:
-        return redirect(request.referrer)
+        return ({'message': "Can't like your own message"})
 
     if message in g.user.likes:
         g.user.likes = [
             like for like in g.user.likes if not like.id == message_id
         ]
+        like = False
     else:
         g.user.likes.append(message)
+        like = True
 
     db.session.commit()
 
-    return redirect(request.referrer)
+    return ({'message': serialize_message(message, like)})
 
 
 @app.route('/users/<int:id>/likes')
