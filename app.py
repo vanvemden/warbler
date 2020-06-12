@@ -13,8 +13,8 @@ app = Flask(__name__)
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgres:///warbler'))
+app.config['SQLALCHEMY_DATABASE_URI'] = (os.environ.get(
+    'DATABASE_URL', 'postgres:///warbler'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -24,7 +24,6 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-
 
 ##############################################################################
 # User signup/login/logout
@@ -67,7 +66,6 @@ def signup():
     """
 
     form = UserAddForm()
-    
 
     if form.validate_on_submit():
         try:
@@ -98,8 +96,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.authenticate(form.username.data,
-                                 form.password.data)
+        user = User.authenticate(form.username.data, form.password.data)
 
         if user:
             do_login(user)
@@ -148,15 +145,10 @@ def users_show(user_id):
 
     user = User.query.get_or_404(user_id)
 
-
     # snagging messages in order from the database;
     # user.messages won't be in order by default
-    messages = (Message
-                .query
-                .filter(Message.user_id == user_id)
-                .order_by(Message.timestamp.desc())
-                .limit(100)
-                .all())
+    messages = (Message.query.filter(Message.user_id == user_id).order_by(
+        Message.timestamp.desc()).limit(100).all())
     return render_template('users/show.html', user=user, messages=messages)
 
 
@@ -208,8 +200,9 @@ def stop_following(follow_id):
         return redirect("/")
 
     followed_user = User.query.get(follow_id)
-    g.user.following.remove(followed_user)
-    db.session.commit()
+    if followed_user in g.user.following:
+        g.user.following.remove(followed_user)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}/following")
 
@@ -241,7 +234,8 @@ def profile():
             flash("Your profile has been updated successfully.", "success")
             return redirect(f"/users/{ g.user.id }")
         else:
-            flash("Please enter the correct password to update your profile.", "danger")
+            flash("Please enter the correct password to update your profile.",
+                  "danger")
             return render_template("users/edit.html", form=form)
     else:
         return render_template("users/edit.html", form=form)
@@ -306,12 +300,14 @@ def add_like(message_id):
 
     if message.user_id == g.user.id:
         return redirect(request.referrer)
-    
+
     if message in g.user.likes:
-        g.user.likes = [like for like in g.user.likes if not like.id == message_id]
+        g.user.likes = [
+            like for like in g.user.likes if not like.id == message_id
+        ]
     else:
         g.user.likes.append(message)
-    
+
     db.session.commit()
 
     return redirect(request.referrer)
@@ -321,7 +317,7 @@ def add_like(message_id):
 def show_favorites(id):
     user = User.query.get_or_404(id)
     likes = user.likes
-    return render_template('likes.html', likes=likes, user=user)
+    return render_template('likes.html', messages=likes, user=user)
 
 
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
@@ -350,16 +346,13 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-    
+
     if g.user:
         following_ids = {f.id for f in g.user.following}
         following_ids.add(g.user.id)
-        messages = (Message
-                    .query
-                    .filter(Message.user_id.in_(following_ids))
-                    .order_by(Message.timestamp.desc())
-                    .limit(100)
-                    .all())
+        messages = (Message.query.filter(
+            Message.user_id.in_(following_ids)).order_by(
+                Message.timestamp.desc()).limit(100).all())
 
         return render_template('home.html', messages=messages)
 
@@ -373,6 +366,7 @@ def homepage():
 #   handled elsewhere)
 #
 # https://stackoverflow.com/questions/34066804/disabling-caching-in-flask
+
 
 @app.after_request
 def add_header(req):
