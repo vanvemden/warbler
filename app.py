@@ -29,6 +29,11 @@ connect_db(app)
 # User signup/login/logout
 
 
+@app.errorhandler(404)
+def error_page(e):
+    return render_template('404.html')
+
+
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
