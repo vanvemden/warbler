@@ -1,19 +1,11 @@
 /* ====================== General */
 
-body {
-  background-color: #e6ecf0;
-}
-
 body.error-404 {
   background-color: #1da1f2;
 }
 
 .form-control {
   margin-bottom: 20px;
-}
-
-.btn {
-  border-radius: 50px;
 }
 
 .btn:hover {
@@ -74,7 +66,6 @@ nav form.navbar-form {
 }
 
 #search.form-control {
-  border-radius: 20px;
   margin-bottom: 0;
   width: 100%;
   font-size: 13px;
@@ -109,7 +100,7 @@ nav form.navbar-form {
  */
 
 .onboarding > .navbar {
-  background-image: url('/static/images/nav-bg.png');
+  background-image: url("/static/images/nav-bg.png");
   background-size: 100% 100%;
 }
 
@@ -396,7 +387,7 @@ p.card-bio {
   width: 100vw;
   left: 0;
   z-index: -1;
-  background-image: url('/static/images/signed-out-home.jpg');
+  background-image: url("/static/images/signed-out-home.jpg");
   background-size: cover;
   background-position: center center;
   color: #fff;
@@ -417,7 +408,7 @@ p.card-bio {
 }
 
 .home-hero:before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -490,7 +481,6 @@ p.card-bio {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #62676c;
 }
 
 #messages.no-hover .message-area {
