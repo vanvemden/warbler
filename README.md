@@ -24,3 +24,11 @@ Start the server:
 ```
 (venv) $ flask run
 ```
+
+## Running Tests
+
+To run a file containing unittests, run the command:
+
+```
+FLASK_ENV=production python -m unittest <name-of-python-file>
+```
