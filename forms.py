@@ -1,3 +1,5 @@
+"""WTForm forms for Warbler."""
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length
@@ -39,4 +41,5 @@ class LoginForm(FlaskForm):
 class UserPasswordForm(FlaskForm):
     password = PasswordField('Current Password', validators=[])
     new_password = PasswordField('New Password', validators=[Length(min=6)])
-    confirm_password = PasswordField('Confirm New Password', validators=[Length(min=6)])
+    confirm_password = PasswordField('Confirm New Password',
+                                     validators=[Length(min=6)])
