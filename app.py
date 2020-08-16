@@ -148,6 +148,10 @@ def list_users():
 def users_show(user_id):
     """Show user profile."""
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     user = User.query.get_or_404(user_id)
 
     # snagging messages in order from the database;
@@ -211,6 +215,7 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
+
 @app.route('/users/profile/password', methods=["GET", "POST"])
 def change_password():
 
@@ -220,17 +225,18 @@ def change_password():
 
     form = UserPasswordForm()
 
-
     if form.validate_on_submit():
         password = form.password.data
-        
+
         if User.authenticate(password=password, username=g.user.username):
 
             if form.new_password.data == form.confirm_password.data:
-                g.user.password = User.change_password(password=form.new_password.data)
+                g.user.password = User.change_password(
+                    password=form.new_password.data)
 
                 db.session.commit()
-                flash("Your password has been updated successfully.", "success")
+                flash("Your password has been updated successfully.",
+                      "success")
                 return redirect(request.referrer)
             else:
                 flash('Sorry, but your two new inputs did not match!')
@@ -241,6 +247,7 @@ def change_password():
             return render_template("users/password.html", form=form)
     else:
         return render_template("users/password.html", form=form)
+
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
@@ -394,14 +401,22 @@ def homepage():
     if g.user:
         following_ids = {f.id for f in g.user.following}
         following_ids.add(g.user.id)
+
         messages = (Message.query.filter(
             Message.user_id.in_(following_ids)).order_by(
                 Message.timestamp.desc()).limit(100).all())
 
-        return render_template('home.html', messages=messages)
+        liked_msg_ids = [msg.id for msg in g.user.likes]
+
+        return render_template('home.html',
+                               messages=messages,
+                               likes=liked_msg_ids)
 
     else:
-        return render_template('home-anon.html')
+        messages = (Message.query.order_by(
+            Message.timestamp.desc()).limit(5).all)
+
+        return render_template('home-anon.html', messages=messages)
 
 
 ##############################################################################
