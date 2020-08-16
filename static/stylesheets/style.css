@@ -100,7 +100,6 @@ nav form.navbar-form {
  */
 
 .onboarding > .navbar {
-  background-image: url("/static/images/nav-bg.png");
   background-size: 100% 100%;
 }
 
@@ -127,10 +126,6 @@ nav form.navbar-form {
 
 .onboarding > .navbar form.navbar-form {
   display: none;
-}
-
-.onboarding {
-  background-color: #fff;
 }
 
 @media (max-width: 468px) {
@@ -164,6 +159,7 @@ nav + .container {
 #profile-avatar {
   width: 200px;
   height: 200px;
+  object-fit: cover;
   border: 5px solid #fff;
   margin-top: -120px;
   z-index: 1;
@@ -176,11 +172,13 @@ nav + .container {
   height: 48px;
   width: 48px;
   margin-top: 2px;
+  border: 1px solid #000;
 }
 
 .message-area,
 .timeline-image {
   display: inline-block;
+  object-fit: cover;
 }
 
 .message-area {
@@ -296,7 +294,7 @@ nav + .container {
 
 .user-card {
   width: 100%;
-  padding-bottom: 100%;
+  padding-bottom: 60%;
   border-radius: 5px;
   border: 1px solid #ccc;
   position: relative;
@@ -331,6 +329,7 @@ nav + .container {
 
 .card-image {
   border: 3px solid #fff;
+  object-fit: cover;
   border-radius: 70px;
   height: 70px;
   width: 70px;
@@ -377,20 +376,11 @@ p.card-bio {
 /* ============================ Signed out home */
 
 .home-hero {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  width: 100vw;
-  left: 0;
   z-index: -1;
   background-image: url("/static/images/signed-out-home.jpg");
   background-size: cover;
-  background-position: center center;
-  color: #fff;
+  background-position: 0 -50px, center;
+  color: #000000;
   text-align: center;
   padding: 1rem;
   text-shadow: 0 0 8px #66757f;
@@ -407,20 +397,11 @@ p.card-bio {
   margin-bottom: 4rem;
 }
 
-.home-hero:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.3);
-}
-
 /* ============================== Signed in Home */
 
 #home-aside > .user-card {
   margin-top: 0;
+  margin-bottom: 32px;
   overflow: hidden;
 }
 
@@ -530,4 +511,12 @@ p.card-bio {
 
 .message-404 .form-inline input {
   flex: 1;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 768px) {
+  /* User card moves from top to sidebar */
+  .user-card {
+    padding-bottom: 100%;
+  }
 }
