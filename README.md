@@ -1,3 +1,4 @@
+![Warbler logo](https://github.com/vanvemden/warbler/blob/master/static/images/warbler-logo.png)
 # warbler
 
 A Twitter clone using Python, Flask, Bcrypt, SQLAlchemy, WTForms, Jinja.
