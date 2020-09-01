@@ -47,6 +47,7 @@ FLASK_ENV=production python -m unittest <name-of-python-file>
 | /users/:user_id                  | GET       | users/show.html      | user, messages     | Show user profile     |
 | /users/:user_id/following        | GET       | users/following.html | user               | List who user follows |
 | /users/:user_id/followers        | GET       | users/followers.html | user               | List who follows user |
+| /users/:user_id/likes            | GET       | likes.html           | messages, user     | List user likes       |
 | /users/follow/:follow_id         | POST      | N/A                  | N/A                | Follow user           |
 | /users/stop-following/:follow_id | POST      | N/A                  | N/A                | Unfollow user         |
 | /users/profile/password          | GET, POST | users/password.html  | UserPasswordForm   | Change password       |
@@ -55,5 +56,4 @@ FLASK_ENV=production python -m unittest <name-of-python-file>
 | /messages/new                    | POST      | N/A                  | N/A                | Add message           |
 | /messages/:message_id            | GET       | messages/show.html   | message            | Show message          |
 | /messages/:message_id/like       | GET,POST  | N/A                  | N/A                | Like/unlike message   |
-| /users/:id/likes                 | GET       | likes.html           | messages, user     | List user likes       |
 | /messages/:message_id/delete     | POST      | N/A                  | N/A                | Delete message        |
